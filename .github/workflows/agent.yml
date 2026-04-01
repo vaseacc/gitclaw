@@ -21,7 +21,7 @@ jobs:
       ) ||
       (
         github.event_name == 'issue_comment' &&
-        github.event.comment.user.login != 'github-actions[bot]' &&
+        github.user.login != 'github-actions[bot]' &&
         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
       )
     steps:
@@ -33,16 +33,13 @@ jobs:
         with:
           bun-version: latest
 
-      - name: Preinstall
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bun lifecycle/preinstall.ts
-
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install
 
-      - name: Run
+      - name: Run Agent (Gemini Mode)
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Use the Gemini key you got from Google AI Studio
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bun lifecycle/main.ts
+        # We tell the 'pi' agent to use google as the provider
+        run: bun lifecycle/main.ts --provider google --model gemini-1.5-flash
