@@ -26,17 +26,16 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Run Deep Debug Agent
+      - name: Run Direct Agent (Deep Logs)
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEBUG: "*"
+        # We bypass main.ts and call the pi-agent directly
+        # This forces the logs to show up in the console
         run: |
-          echo "--- STARTING DEEP DEBUG ---"
-          bun lifecycle/main.ts \
+          npx @mariozechner/pi-coding-agent \
             --provider google \
             --model gemini-1.5-flash \
-            --verbose \
+            --instructions "Read the issue #${{ github.event.issue.number }} and follow the instructions. You MUST create a file to prove you are working." \
             --yes \
-            --prompt "CRITICAL: You are in debug mode. You MUST execute at least one 'write_file' command. Create a file named 'DEBUG_SUCCESS.txt' with the content 'LOGS CAPTURED'. Explain your actions in detail."
-          echo "--- DEBUG RUN FINISHED ---"
+            --verbose
