@@ -14,16 +14,6 @@ permissions:
 jobs:
   run-agent:
     runs-on: ubuntu-latest
-    if: >
-      (
-        github.event_name == 'issues' &&
-        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association)
-      ) ||
-      (
-        github.event_name == 'issue_comment' &&
-        github.event.comment.user.login != 'github-actions[bot]' &&
-        contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
-      )
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,17 +26,17 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Run Agent
+      - name: Run Deep Debug Agent
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # --verbose: Shows every detail
-        # --yes: Auto-approves file writes
-        # --prompt: Forces the model to generate text to avoid "Blank Body" errors
+          DEBUG: "*"
         run: |
+          echo "--- STARTING DEEP DEBUG ---"
           bun lifecycle/main.ts \
             --provider google \
             --model gemini-1.5-flash \
             --verbose \
             --yes \
-            --prompt "You are an autonomous developer. You MUST use the 'write' or 'edit' tools to fulfill requests. After acting, you MUST write a short summary of your work. Never return an empty message."
+            --prompt "CRITICAL: You are in debug mode. You MUST execute at least one 'write_file' command. Create a file named 'DEBUG_SUCCESS.txt' with the content 'LOGS CAPTURED'. Explain your actions in detail."
+          echo "--- DEBUG RUN FINISHED ---"
