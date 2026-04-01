@@ -42,4 +42,4 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         # We tell the 'pi' agent to use google as the provider
-        run: bun lifecycle/main.ts --provider google --model gemini-1.5-flash
+        run: bun lifecycle/main.ts --provider google --model gemini-1.5-flash --prompt "You are a helpful coding assistant. Always explain what you did in a comment."
