@@ -21,7 +21,7 @@ jobs:
       ) ||
       (
         github.event_name == 'issue_comment' &&
-        github.user.login != 'github-actions[bot]' &&
+        github.event.comment.user.login != 'github-actions[bot]' &&
         contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association)
       )
     steps:
@@ -40,10 +40,13 @@ jobs:
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # We add --yes to skip confirmations and a stronger prompt to fix the "Blank Body" error
+        # --verbose: Shows every detail
+        # --yes: Auto-approves file writes
+        # --prompt: Forces the model to generate text to avoid "Blank Body" errors
         run: |
           bun lifecycle/main.ts \
             --provider google \
             --model gemini-1.5-flash \
+            --verbose \
             --yes \
-            --prompt "You are a senior developer. You must always provide a brief summary of your changes in your response. Never leave a comment blank."
+            --prompt "You are an autonomous developer. You MUST use the 'write' or 'edit' tools to fulfill requests. After acting, you MUST write a short summary of your work. Never return an empty message."
